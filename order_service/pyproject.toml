@@ -1,7 +1,0 @@
-[project]
-name = "order_service"  # заменим ниже
-dependencies = [
-    "fastapi",
-    "uvicorn",
-    "pydantic"
-]
