@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 
+
 class ProductBase(BaseModel):
     name: str
     description: str
@@ -7,11 +8,14 @@ class ProductBase(BaseModel):
     stock_quantity: int
     image_url: str
 
+
 class ProductCreate(ProductBase):
     pass
 
+
 class ProductUpdate(ProductBase):
     is_active: bool
+
 
 class ProductOut(ProductBase):
     id: int
