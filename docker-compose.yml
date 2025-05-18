@@ -2,9 +2,9 @@ services:
   product_service:
     build: ./product_service
     container_name: product_service
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
+    # command: uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
     ports:
-      - "8001:8001"
+      - "8001:8000"
     env_file:
       - ./product_service/.env
     depends_on:
@@ -23,6 +23,8 @@ services:
       - "5433:5432"
     env_file:
       - ./product_service/.env
+    volumes: # ⬅️ добавлено
+      - product_data:/var/lib/postgresql/data # ⬅️ добавлено
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres"]
       interval: 5s
@@ -32,9 +34,9 @@ services:
   order_service:
     build: ./order_service
     container_name: order_service
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8002 --reload
+    # command: uvicorn app.main:app --host 0.0.0.0 --port 8002 --reload
     ports:
-      - "8002:8002"
+      - "8002:8000"
     env_file:
       - ./order_service/.env
     depends_on:
@@ -53,6 +55,9 @@ services:
       - "5434:5432"
     env_file:
       - ./order_service/.env
+      - ./order_service/.env
+    volumes: # ⬅️ добавлено
+      - order_data:/var/lib/postgresql/data # ⬅️ добавлено
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres"]
       interval: 5s
@@ -62,9 +67,9 @@ services:
   admin_service:
     build: ./admin_service
     container_name: admin_service
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8003 --reload
+    # command: uvicorn app.main:app --host 0.0.0.0 --port 8003 --reload
     ports:
-      - "8003:8003"
+      - "8003:8000"
     env_file:
       - ./admin_service/.env
     depends_on:
@@ -83,87 +88,15 @@ services:
       - "5435:5432"
     env_file:
       - ./admin_service/.env
+    volumes: # ⬅️ добавлено
+      - admin_data:/var/lib/postgresql/data # ⬅️ добавлено
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres"]
       interval: 5s
       timeout: 3s
       retries: 5
-# services:
-#   product_service:
-#     build: ./product_service
-#     container_name: product_service
-#     command: uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
-#     ports:
-#       - "8001:8001"
-#     env_file:
-#       - ./product_service/.env
-#     environment:
-#       - DB_HOST=product_db
-#       - DB_PORT=5432
-#       - DB_NAME=products
-#       - DB_USER=postgres
-#       - DB_PASSWORD=postgres
-#     depends_on:
-#       - product_db
 
-#   product_db:
-#     image: postgres:15
-#     container_name: product_db
-#     environment:
-#       POSTGRES_DB: products
-#       POSTGRES_USER: postgres
-#       POSTGRES_PASSWORD: postgres
-#     ports:
-#       - "5433:5432"
-
-#   order_service:
-#     build: ./order_service
-#     container_name: order_service
-#     command: uvicorn app.main:app --host 0.0.0.0 --port 8002 --reload
-#     ports:
-#       - "8002:8002"
-#     env_file:
-#       - ./order_service/.env
-#     environment:
-#       - DB_HOST=order_db
-#       - DB_PORT=5432
-#       - DB_NAME=orders
-#       - DB_USER=postgres
-#       - DB_PASSWORD=postgres
-#     depends_on:
-#       - order_db
-
-#   order_db:
-#     image: postgres:15
-#     container_name: order_db
-#     environment:
-#       POSTGRES_DB: orders
-#       POSTGRES_USER: postgres
-#       POSTGRES_PASSWORD: postgres
-#     ports:
-#       - "5434:5432"
-
-#   admin_service:
-#     build: ./admin_service
-#     container_name: admin_service
-#     command: uvicorn app.main:app --host 0.0.0.0 --port 8003 --reload
-#     ports:
-#       - "8003:8003"
-#     environment:
-#       - DB_HOST=admin_db
-#       - DB_PORT=5432
-#       - DB_NAME=admin
-#       - DB_USER=postgres
-#       - DB_PASSWORD=postgres
-#     depends_on:
-#       - admin_db
-
-#   admin_db:
-#     image: postgres:15
-#     container_name: admin_db
-#     environment:
-#       POSTGRES_DB: admin
-#       POSTGRES_USER: postgres
-#       POSTGRES_PASSWORD: postgres
-#     ports:
-#       - "5435:5432"
+volumes: # ⬅️ добавлено
+  product_data: # ⬅️ добавлено
+  order_data: # ⬅️ добавлено
+  admin_data: # ⬅️ добавлено

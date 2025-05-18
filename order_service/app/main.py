@@ -1,7 +1,30 @@
 from fastapi import FastAPI
+from contextlib import asynccontextmanager
 
-app = FastAPI()
+from app.models.order_model import Base
+from app.db.session import engine
+from app.api.v1.order_routes import router as order_router
 
-@app.get("/orders")
-def get_orders():
-    return {"message": "Order service is working!"}
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Выполняется при запуске сервиса
+    Base.metadata.create_all(bind=engine)
+    yield
+    # Здесь можно добавить логику очистки при завершении (опционально)
+
+
+app = FastAPI(lifespan=lifespan)
+
+# Подключаем роуты
+app.include_router(order_router, prefix="/orders", tags=["orders"])
+
+
+@app.get("/health")
+def health_check():
+    return {"status": "ok"}
+
+
+@app.get("/")
+def root():
+    return {"message": "Order service root"}
