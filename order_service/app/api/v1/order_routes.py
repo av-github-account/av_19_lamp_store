@@ -6,7 +6,6 @@ from app.services.order_service import (
     get_order,
     get_all_orders,
     update_order,
-    cancel_order,
 )
 from app.db.session import get_db
 
@@ -39,9 +38,9 @@ def update(order_id: int, data: OrderUpdate, db: Session = Depends(get_db)):
     return order
 
 
-@router.patch("/{order_id}")
-def cancel(order_id: int, db: Session = Depends(get_db)):
-    result = cancel_order(db, order_id)
-    if not result:
-        raise HTTPException(status_code=404, detail="Order not found")
-    return result
+# @router.patch("/{order_id}")
+# def cancel(order_id: int, db: Session = Depends(get_db)):
+#     result = cancel_order(db, order_id)
+#     if not result:
+#         raise HTTPException(status_code=404, detail="Order not found")
+#     return result

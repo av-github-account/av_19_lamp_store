@@ -1,6 +1,16 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from typing import List, Optional
 from datetime import datetime
+from enum import Enum
+
+
+class OrderStatusEnum(str, Enum):
+    NEW = "Новый"
+    CANCELLED = "Отменен"
+    IN_PROGRESS = "В работе"
+    READY = "Готов к выдаче"
+    WAITING_PAYMENT = "Ожидание оплаты"
+    COMPLETED = "Выполнен"
 
 
 class OrderItemCreate(BaseModel):
@@ -9,19 +19,21 @@ class OrderItemCreate(BaseModel):
     unit_price: float
 
 
-class OrderCreate(BaseModel):
-    order_name: str
-    customer_name: str
-    customer_email: str
-    customer_phone: str
-    delivery_address: str
-    total_price: float
-    comment: Optional[str] = ""
-    items: List[OrderItemCreate]
-
-
 class OrderItemOut(OrderItemCreate):
     id: int
+
+    class Config:
+        from_attributes = True
+
+
+class OrderCreate(BaseModel):
+    customer_name: str
+    customer_email: EmailStr
+    customer_phone: str
+    delivery_address: str
+    comment: Optional[str] = None
+    status: OrderStatusEnum = OrderStatusEnum.NEW
+    items: List[OrderItemCreate]
 
 
 class OrderOut(BaseModel):
@@ -29,19 +41,23 @@ class OrderOut(BaseModel):
     order_name: str
     order_date: datetime
     customer_name: str
-    customer_email: str
+    customer_email: EmailStr
     customer_phone: str
     delivery_address: str
     total_price: float
-    status: str
+    status: OrderStatusEnum
     comment: Optional[str]
     items: List[OrderItemOut]
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class OrderUpdate(BaseModel):
-    status: Optional[str]
-    delivery_address: Optional[str]
-    comment: Optional[str]
+    customer_name: Optional[str] = None
+    customer_email: Optional[EmailStr] = None
+    customer_phone: Optional[str] = None
+    delivery_address: Optional[str] = None
+    comment: Optional[str] = None
+    status: Optional[OrderStatusEnum] = None
+    items: Optional[List[OrderItemCreate]] = None
