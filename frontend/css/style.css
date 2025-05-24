@@ -1,0 +1,74 @@
+/* Общие стили */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f8f9fa;
+}
+
+.navbar-brand {
+    font-weight: bold;
+}
+
+.footer {
+    background-color: #f8f9fa;
+    padding: 20px 0;
+    margin-top: 40px;
+}
+
+.product-card {
+    margin-bottom: 30px;
+    transition: transform 0.3s;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+}
+
+.product-img {
+    height: 200px;
+    object-fit: contain;
+}
+
+.page-title {
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+/* Стили для страницы оформления заказа */
+.order-item {
+    border-bottom: 1px solid #eee;
+    padding: 15px 0;
+}
+
+.order-summary {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+/* Стили для админки */
+.admin-nav {
+    background-color: #343a40;
+    min-height: 100vh;
+    color: white;
+}
+
+.admin-nav a {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.admin-nav a:hover {
+    color: white;
+    text-decoration: none;
+}
+
+/* Адаптивные стили */
+@media (max-width: 768px) {
+    .admin-nav {
+        min-height: auto;
+    }
+    
+    .product-img {
+        height: 150px;
+    }
+}
