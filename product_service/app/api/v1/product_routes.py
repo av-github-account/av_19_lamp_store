@@ -13,7 +13,7 @@ from app.db.session import get_db
 router = APIRouter()
 
 
-@router.get("", response_model=list[ProductOut])
+@router.get("/", response_model=list[ProductOut])
 def list_products(db: Session = Depends(get_db)):
     return get_all_products(db)
 
