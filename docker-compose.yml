@@ -72,7 +72,8 @@ services:
     env_file:
       - ./admin_service/.env
     volumes:
-      - ./media:/media                          # ← общий том для картинок
+      # - ./media:/media
+      - media:/media                          # ← общий том для картинок
     depends_on:
       admin_db:
         condition: service_healthy

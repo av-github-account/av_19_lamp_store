@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Лампочка 20 W / E14 - Ламповый магазин</title>
+    <title>Карточка товара — Ламповый магазин</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="../css/style.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
 </head>
+
 <body>
-    <!-- Навигация -->
+    <!-- Навигация (скопирована из index.html) -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container">
             <a class="navbar-brand" href="index.html">Ламповый магазин</a>
@@ -17,12 +19,8 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.html">Главная</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="contacts.html">Контакты</a>
-                    </li>
+                    <li class="nav-item"><a class="nav-link" href="index.html">Главная</a></li>
+                    <li class="nav-item"><a class="nav-link" href="contacts.html">Контакты</a></li>
                 </ul>
                 <div class="d-flex">
                     <a href="order.html" class="btn btn-outline-dark me-2">Корзина</a>
@@ -34,27 +32,23 @@
 
     <!-- Основное содержимое -->
     <div class="container my-5">
-        <h1 class="page-title">Карточка товара</h1>
-        
+        <h1 class="page-title" id="product-title">Карточка товара</h1>
         <div class="row">
             <div class="col-md-6">
-                <img src="../img/lamp.jpg" class="img-fluid rounded" alt="Лампочка 20 W / E14">
+                <img id="product-image" src="" class="img-fluid rounded" alt="Изображение товара">
             </div>
             <div class="col-md-6">
-                <h2>Лампочка 20 W / E14</h2>
-                <p class="h3 text-primary mb-4">250 рублей</p>
-                
+                <h2 id="product-name"></h2>
+                <p class="h3 text-primary mb-4" id="product-price"></p>
                 <div class="mb-4">
                     <h4>Описание:</h4>
-                    <p>Мощность: 20w</p>
-                    <p>Цоколь: E14</p>
-                    <p>Энергосберегающая.</p>
-                    <p>Лампочка производится на заводе "Лампочка Ильича".</p>
+                    <p id="product-description"></p>
+                    <p>В наличии: <span id="product-stock"></span> шт.</p>
                 </div>
-                
                 <div class="d-flex align-items-center mb-4">
-                    <input type="number" class="form-control me-3" value="1" min="1" style="width: 80px;">
-                    <button class="btn btn-primary btn-lg">Добавить в корзину</button>
+                    <input id="quantity-input" type="number" class="form-control me-3" value="1" min="1"
+                        style="width: 80px;">
+                    <button id="add-to-cart-btn" class="btn btn-primary btn-lg">Добавить в корзину</button>
                 </div>
             </div>
         </div>
@@ -63,10 +57,42 @@
     <!-- Подвал -->
     <footer class="footer">
         <div class="container text-center">
-            <p>2025. Ламповый магазин - лучший магазин из всех магазинов.</p>
+            <p>2025. Ламповый магазин — лучший магазин из всех магазинов.</p>
         </div>
     </footer>
 
+    <!-- Axios и логика загрузки товара -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Получаем ?id= из URL
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+            if (!id) {
+                alert('Не указан ID товара');
+                return;
+            }
+            // Запрашиваем товар по ID
+            axios.get(`/api/v1/products/${id}`)
+                .then(({ data: p }) => {
+                    // Заполняем поля
+                    document.getElementById('product-name').textContent = p.name;
+                    document.getElementById('product-title').textContent = p.name;
+                    document.getElementById('product-price').textContent = `${p.price} руб.`;
+                    document.getElementById('product-description').textContent = p.description;
+                    document.getElementById('product-stock').textContent = p.stock_quantity;
+                    document.getElementById('product-image').src = p.image_url;
+                    document.getElementById('product-image').alt = p.name;
+                })
+                .catch(err => {
+                    console.error('Ошибка загрузки товара:', err);
+                    alert('Не удалось загрузить данные товара.');
+                });
+        });
+    </script>
+
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

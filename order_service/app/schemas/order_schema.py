@@ -16,8 +16,10 @@ class OrderStatusEnum(str, Enum):
 class OrderItemCreate(BaseModel):
     product_id: int
     quantity: int
-    unit_price: float
-
+    # unit_price: float
+    class Config:
+        # Любые лишние поля (например, unit_price из JSON) будут проигнорированы
+        extra = "ignore"
 
 class OrderItemOut(OrderItemCreate):
     id: int
