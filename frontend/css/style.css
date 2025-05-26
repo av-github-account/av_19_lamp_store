@@ -2,6 +2,7 @@
 body {
     font-family: 'Arial', sans-serif;
     background-color: #f8f9fa;
+    padding-bottom: 3rem; /* достаточно места под футер высотой ~48px */
 }
 
 .navbar-brand {
@@ -12,6 +13,7 @@ body {
     background-color: #f8f9fa;
     padding: 20px 0;
     margin-top: 40px;
+    box-shadow: 0 -1px 4px rgba(0,0,0,0.1);
 }
 
 .product-card {
@@ -71,4 +73,11 @@ body {
     .product-img {
         height: 150px;
     }
+}
+
+.card-text {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;      /* Оставляем 3 строки */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }

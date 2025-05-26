@@ -39,6 +39,9 @@ services:
       - "8002:8000"
     env_file:
       - ./order_service/.env
+    environment:
+      # Указываем gateway как точку входа в product_service
+      - PRODUCT_SERVICE_URL=http://gateway:8000
     depends_on:
       order_db:
         condition: service_healthy
@@ -106,7 +109,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./media:/media
+      - media:/media
     depends_on:
       product_service:
         condition: service_healthy

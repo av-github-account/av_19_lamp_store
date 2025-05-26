@@ -27,11 +27,14 @@ async def proxy_media(path: str, request: Request):
             headers={k: v for k, v in request.headers.items() if k.lower() != "host"},
             timeout=10.0
         )
-    return Response(
-        content=resp.content,
-        status_code=resp.status_code,
-        headers=resp.headers
-    )
+        # Фильтруем upstream-заголовки date и server
+    filtered = {k: v for k, v in resp.headers.items() if k.lower() not in ("date", "server")}
+    return Response(content=resp.content, status_code=resp.status_code, headers=filtered)
+    # return Response(
+    #     content=resp.content,
+    #     status_code=resp.status_code,
+    #     headers=resp.headers
+    # )
 
 # Generic proxy for all API services under /api/v1/{service}/...
 @app.api_route("/api/v1/{service}/{path:path}",
@@ -55,11 +58,14 @@ async def proxy(service: str, path: str, request: Request):
             content=await request.body(),
             timeout=10.0
         )
-    return Response(
-        content=resp.content,
-        status_code=resp.status_code,
-        headers=resp.headers
-    )
+  # Фильтруем upstream-заголовки date и server
+    filtered = {k: v for k, v in resp.headers.items() if k.lower() not in ("date", "server")}
+    return Response(content=resp.content, status_code=resp.status_code, headers=filtered)
+    # return Response(
+    #     content=resp.content,
+    #     status_code=resp.status_code,
+    #     headers=resp.headers
+    # )
 
 @app.get("/health")
 def health():

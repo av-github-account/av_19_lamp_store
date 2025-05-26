@@ -17,7 +17,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 # Подключаем роуты
-app.include_router(order_router, prefix="/orders", tags=["orders"])
+app.include_router(order_router, prefix="/api/v1/orders", tags=["orders"])
 
 
 @app.get("/health")
