@@ -58,8 +58,8 @@ services:
       - "5434:5432"
     env_file:
       - ./order_service/.env
-    volumes: # ⬅️ добавлено
-      - order_data:/var/lib/postgresql/data # ⬅️ добавлено
+    volumes: 
+      - order_data:/var/lib/postgresql/data 
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres"]
       interval: 5s
@@ -93,8 +93,8 @@ services:
       - "5435:5432"
     env_file:
       - ./admin_service/.env
-    volumes: # ⬅️ добавлено
-      - admin_data:/var/lib/postgresql/data # ⬅️ добавлено
+    volumes: 
+      - admin_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres"]
       interval: 5s
@@ -142,8 +142,8 @@ services:
       timeout: 3s
       retries: 5
 # -----------------------------
-volumes: # ⬅️ добавлено
-  product_data: # ⬅️ добавлено
-  order_data: # ⬅️ добавлено
-  admin_data: # ⬅️ добавлено
+volumes: 
+  product_data: 
+  order_data: 
+  admin_data: 
   media:
