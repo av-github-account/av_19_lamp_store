@@ -1,153 +1,60 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from uuid import uuid4
-from pathlib import Path
-from fastapi.staticfiles import StaticFiles
+from contextlib import asynccontextmanager
 
+from app.db.base import Base  
+from app.db.session import engine, get_db  
+from app.api.v1.admin_routes import router as admin_router
 
-app = FastAPI()
+import os  
+from sqlalchemy.orm import Session  
+from app.schemas.admin_schema import AdminCreate 
+from app.services.auth_service import get_admin_count, create_admin 
 
-# CORS
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """
+    При старте создаём все таблицы (в том числе таблицу 'admins'),
+    а затем проверяем, есть ли в базе хотя бы один администратор.
+    Если нет — создаём дефолтного из переменных окружения.
+    """
+    Base.metadata.create_all(bind=engine)
+
+    # Открываем сессию, чтобы проверить наличие админов
+    db: Session = next(get_db())  
+    try:
+        # Если таблица admins пуста, создаём дефолтного админа из .env
+        if get_admin_count(db) == 0:  
+            username = os.getenv("ADMIN_DEFAULT_USERNAME")  
+            password = os.getenv("ADMIN_DEFAULT_PASSWORD")  
+            if username and password: 
+                admin_in = AdminCreate(username=username, password=password)  
+                create_admin(db, admin_in) 
+                print(f"Default admin '{username}' has been created.")  
+            else:  
+                print("ADMIN_DEFAULT_USERNAME or ADMIN_DEFAULT_PASSWORD not set; skipping default admin creation.")  
+    finally:
+        db.close()  
+
+    yield
+    # При завершении (если нужно) можно что-то добавить
+
+# Инициализируем FastAPI с блоком lifespan
+app = FastAPI(lifespan=lifespan)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=["*"],      # Разрешаем обращения с любых источников (можно ограничить при необходимости)
+    allow_methods=["*"],      # Разрешаем любые HTTP-методы
+    allow_headers=["*"],      # Разрешаем любые заголовки
 )
 
-# Заглушка логина
-@app.post("/api/v1/admin/login")
-def login(credentials: dict):
-    return {"token": "stub-token", "admin_id": 1}
-
-# 1) Папка для хранения загруженных файлов
-MEDIA_DIR = Path("/media")
-MEDIA_DIR.mkdir(exist_ok=True)
-
-# 2) Статика: раздача файлов по URL /media/имя_файла
-app.mount("/media", StaticFiles(directory=str(MEDIA_DIR)), name="media")
-
-# Новый endpoint для загрузки изображений
-@app.post("/admin/upload-image")
-async def upload_image(file: UploadFile = File(...)):
-    ext = Path(file.filename).suffix
-    if ext.lower() not in {".png", ".jpg", ".jpeg", ".gif"}:
-        raise HTTPException(400, "Неподдерживаемый формат файла")
-    filename = f"{uuid4().hex}{ext}"
-    dest = MEDIA_DIR / filename
-    data = await file.read()  # читаем весь файл
-    dest.write_bytes(data)    # сохраняем
-    # возвращаем URL, который будут использовать клиенты
-    return {"image_url": f"/media/{filename}"}
+app.include_router(admin_router, prefix="/api/v1/admin", tags=["admin"])
 
 @app.get("/health")
-def health():
+def health_check():
     return {"status": "ok"}
 
-
-
-
-
-
-# # from fastapi import FastAPI
-# # from pydantic import BaseModel
-
-# # app = FastAPI()
-
-# # class LoginSchema(BaseModel):
-# #     username: str
-# #     password: str
-
-# # @app.post("/api/v1/admin/login")
-# # def login(data: LoginSchema):
-# #     # простая заглушка для авторизации админу
-# #     return {"token": "stub-token", "admin_id": 1}
-
-# # @app.get("/health")
-# # def health():
-# #     return {"status": "ok"}
-
-
-
-# # # from fastapi import FastAPI
-
-# # # app = FastAPI()
-
-# # # @app.post("/admin/login")
-# # # def login():
-# # #     return {"message": "Admin login works!"}
-
-
-
-
-
-
-
-from fastapi import FastAPI, UploadFile, File, HTTPException
-# from fastapi.middleware.cors import CORSMiddleware
-# from uuid import uuid4
-# from pathlib import Path
-
-# app = FastAPI()
-
-# # CORS
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=["*"],
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-# )
-
-# # Заглушка логина
-# @app.post("/api/v1/admin/login")
-# def login(credentials: dict):
-#     return {"token": "stub-token", "admin_id": 1}
-
-# # Новый endpoint для загрузки изображений
-# @app.post("/api/v1/admin/upload-image")
-# async def upload_image(file: UploadFile = File(...)):
-#     media_dir = Path("/media")
-#     media_dir.mkdir(parents=True, exist_ok=True)
-#     ext = Path(file.filename).suffix
-#     filename = f"{uuid4().hex}{ext}"
-#     file_path = media_dir / filename
-#     with file_path.open("wb") as f:
-#         f.write(await file.read())
-#     return {"url": f"/media/{filename}"}
-
-# @app.get("/health")
-# def health():
-#     return {"status": "ok"}
-
-
-
-
-
-
-# # from fastapi import FastAPI
-# # from pydantic import BaseModel
-
-# # app = FastAPI()
-
-# # class LoginSchema(BaseModel):
-# #     username: str
-# #     password: str
-
-# # @app.post("/api/v1/admin/login")
-# # def login(data: LoginSchema):
-# #     # простая заглушка для авторизации админу
-# #     return {"token": "stub-token", "admin_id": 1}
-
-# # @app.get("/health")
-# # def health():
-# #     return {"status": "ok"}
-
-
-
-# # # from fastapi import FastAPI
-
-# # # app = FastAPI()
-
-# # # @app.post("/admin/login")
-# # # def login():
-# # #     return {"message": "Admin login works!"}
+@app.get("/", tags=["root"])
+def root():
+    return {"message": "Admin service root"}
