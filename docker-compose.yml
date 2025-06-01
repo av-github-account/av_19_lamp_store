@@ -108,6 +108,8 @@ services:
     container_name: gateway
     ports:
       - "8000:8000"
+    env_file:
+      - ./gateway_service/.env
     volumes:
       - media:/media
     depends_on:
