@@ -1,0 +1,285 @@
+<!-- frontend/a_order.html -->
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Админка — Редактирование заказа</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="css/style.css" rel="stylesheet" />
+    <style>
+        /* Красная рамка для изменённых полей */
+        .changed-field {
+            border: 2px solid #dc3545 !important;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Навигация -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="a_index.html">
+                <span class="fs-4">Админка</span>
+            </a>
+            <div class="collapse navbar-collapse">
+                <div class="btn-group ms-auto">
+                    <a href="a_index.html" class="btn btn-outline-dark me-2">Главная</a>
+                    <a href="login.html" class="btn btn-outline-primary">Выход</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Основное содержимое: форма редактирования заказа -->
+    <div class="container my-5">
+        <h1 class="page-title text-center mb-4">Редактирование заказа</h1>
+        <div class="row">
+            <!-- Левая колонка: продукты -->
+            <div class="col-md-8">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        Состав заказа
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Название товара</th>
+                                    <th>Цена</th>
+                                    <th>Количество</th>
+                                    <th>Сумма</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productsTableBody">
+                                <!-- сюда динамически подставляем ряды -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Правая колонка: общая информация о заказе -->
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        Информация о заказе
+                    </div>
+                    <div class="card-body">
+                        <form id="orderForm">
+                            <div class="mb-3">
+                                <label for="orderName" class="form-label">Номер заказа:</label>
+                                <!-- Оставляем это поле только для отображения order_name, но оно readonly -->
+                                <input type="text" id="orderName" class="form-control" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label for="customerName" class="form-label">Имя покупателя:</label>
+                                <input type="text" id="customerName" name="customer_name" class="form-control">
+                            </div>
+                            <div class="mb-3">
+                                <label for="email" class="form-label">E-mail:</label>
+                                <input type="email" id="email" name="customer_email" class="form-control">
+                            </div>
+                            <div class="mb-3">
+                                <label for="phone" class="form-label">Телефон:</label>
+                                <input type="text" id="phone" name="customer_phone" class="form-control">
+                            </div>
+                            <div class="mb-3">
+                                <label for="address" class="form-label">Адрес доставки:</label>
+                                <input type="text" id="address" name="delivery_address" class="form-control">
+                            </div>
+                            <div class="mb-3">
+                                <label for="status" class="form-label">Статус заказа:</label>
+                                <select id="status" name="status" class="form-select">
+                                    <option value="Новый">Новый</option>
+                                    <option value="Отменен">Отменен</option>
+                                    <option value="В работе">В работе</option>
+                                    <option value="Готов к выдаче">Готов к выдаче</option>
+                                    <option value="Ожидание оплаты">Ожидание оплаты</option>
+                                    <option value="Выполнен">Выполнен</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="adminComment" class="form-label">Комментарий администратора:</label>
+                                <textarea id="adminComment" name="comment" class="form-control" rows="3"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="orderTemplate" class="form-label">Шаблон (для статуса):</label>
+                                <textarea id="orderTemplate" name="template" class="form-control" rows="2"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Сохранить</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Подключаем Axios -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            // ===== 1) Получаем order_id из query string =====
+            const params = new URLSearchParams(window.location.search);
+            const orderId = params.get("order_id");
+            if (!orderId) {
+                alert("order_id не передан в URL");
+                return;
+            }
+
+            // ===== 2) Вставляем заголовки аутентификации для всех запросов =====
+            const token = localStorage.getItem("access_token");
+            if (token) {
+                axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+            }
+            axios.defaults.headers.common["X-User-Role"] = "admin";
+
+            let products = [];
+            let orderData = null;
+
+            // Сохраняем ссылки на элементы
+            const orderNameField = document.getElementById("orderName");
+            const customerNameField = document.getElementById("customerName");
+            const emailField = document.getElementById("email");
+            const phoneField = document.getElementById("phone");
+            const addressField = document.getElementById("address");
+            const statusField = document.getElementById("status");
+            const commentField = document.getElementById("adminComment");
+            const templateField = document.getElementById("orderTemplate");
+            const productsTableBody = document.getElementById("productsTableBody");
+
+            // ===== 3) Загрузка списка всех товаров из базы (для отображения названий/цен) =====
+            async function loadProducts() {
+                try {
+                    const resp = await axios.get('/api/v1/products/');
+                    products = resp.data;
+                } catch (err) {
+                    alert("Не удалось загрузить список товаров");
+                }
+            }
+
+            // ===== 4) Загрузка данных самого заказа по переданному orderId =====
+            async function loadOrderData() {
+                try {
+                    const resp = await axios.get(`/api/v1/orders/${orderId}`);
+                    orderData = resp.data;
+
+                    // 4.1. Заполняем общие поля
+                    orderNameField.value = orderData.order_name || "";
+                    customerNameField.value = orderData.customer_name || "";
+                    emailField.value = orderData.customer_email || "";
+                    phoneField.value = orderData.customer_phone || "";
+                    addressField.value = orderData.delivery_address || "";
+                    statusField.value = orderData.status || "Новый";
+                    commentField.value = orderData.comment || "";
+                    templateField.value = orderData.template || "";
+
+                    // 4.2. Рендерим таблицу с товарами
+                    renderProductsTable();
+                } catch (err) {
+                    console.error("Не удалось загрузить заказ:", err);
+                    alert("Ошибка при загрузке данных заказа");
+                }
+            }
+
+            // ===== 5) Рендер таблицы с товарами =====
+            function renderProductsTable() {
+                productsTableBody.innerHTML = "";
+                if (!orderData || !orderData.items) return;
+
+                orderData.items.forEach(item => {
+                    const tr = document.createElement("tr");
+
+                    // Название товара
+                    const tdName = document.createElement("td");
+                    const product = products.find(p => p.id === item.product_id);
+                    tdName.textContent = product ? product.name : "";
+                    tr.appendChild(tdName);
+
+                    // Цена
+                    const tdPrice = document.createElement("td");
+                    tdPrice.textContent = product ? product.price : "";
+                    tr.appendChild(tdPrice);
+
+                    // Количество (делаем инпут для правки количества)
+                    const tdQty = document.createElement("td");
+                    const qtyInput = document.createElement("input");
+                    qtyInput.type = "number";
+                    qtyInput.min = "1";
+                    qtyInput.value = item.quantity;
+                    qtyInput.classList.add("form-control", "form-control-sm");
+                    qtyInput.dataset.productId = item.product_id; // чтобы потом знать, для какого товара
+                    tdQty.appendChild(qtyInput);
+                    tr.appendChild(tdQty);
+
+                    // Сумма
+                    const tdSum = document.createElement("td");
+                    tdSum.textContent = (product ? product.price : 0) * item.quantity;
+                    tr.appendChild(tdSum);
+
+                    productsTableBody.appendChild(tr);
+                });
+            }
+
+            // ===== 6) Отслеживаем правки полей, чтобы подсветить изменённые =====
+            const formFields = [customerNameField, emailField, phoneField, addressField, statusField, commentField, templateField];
+            formFields.forEach(field => {
+                field.addEventListener("input", () => {
+                    const originalValue = orderData ? orderData[field.name] || "" : "";
+                    if (field.value !== originalValue) {
+                        field.classList.add("changed-field");
+                    } else {
+                        field.classList.remove("changed-field");
+                    }
+                });
+            });
+
+            productsTableBody.addEventListener("input", () => {
+                // Перерисовываем суммы и отмечаем изменённые ячейки, если нужно
+                renderProductsTable();
+            });
+
+            // ===== 7) Обработка отправки формы «Сохранить» =====
+            document.getElementById("orderForm").addEventListener("submit", async (e) => {
+                e.preventDefault();
+
+                // Собираем payload для PUT
+                const updatedItems = [];
+                productsTableBody.querySelectorAll("input[type='number']").forEach(inp => {
+                    const pid = parseInt(inp.dataset.productId);
+                    const qty = parseInt(inp.value);
+                    updatedItems.push({ product_id: pid, quantity: qty });
+                });
+
+                const payload = {
+                    customer_name: customerNameField.value,
+                    customer_email: emailField.value,
+                    customer_phone: phoneField.value,
+                    delivery_address: addressField.value,
+                    status: statusField.value,
+                    comment: commentField.value,
+                    template: templateField.value,
+                    items: updatedItems
+                };
+
+                try {
+                    await axios.put(`/api/v1/orders/${orderId}`, payload);
+                    alert("Заказ успешно обновлён");
+                    window.location.reload();
+                } catch (err) {
+                    console.error("Ошибка при сохранении:", err);
+                    alert("Не удалось сохранить изменения");
+                }
+            });
+
+            // ===== 8) Последовательный запуск загрузок =====
+            await loadProducts();
+            await loadOrderData();
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
