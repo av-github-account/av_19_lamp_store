@@ -1,0 +1,84 @@
+/* Шапка «таблицы» в div */
+.orders-header {
+  display: flex;
+  padding: 0.75rem 1rem;
+  background-color: #343a40;
+  color: #fff;
+  font-weight: bold;
+  align-items: center;
+}
+
+.orders-header .cell {
+  flex: 1;
+}
+
+.orders-header .date-cell {
+  flex: 1.2;
+}
+
+.orders-header .status-cell {
+  flex: 1.2;
+}
+
+/* Контейнер строк */
+#ordersContainer .order-row {
+  display: flex;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #dee2e6;
+  align-items: center;
+}
+
+#ordersContainer .order-row:nth-child(even) {
+  background-color: #f8f9fa;
+}
+
+/* Ссылка на заказ */
+.order-name-link {
+  color: #0d6efd;
+  text-decoration: none;
+}
+
+.order-name-link:hover {
+  text-decoration: underline;
+}
+
+/* Ячейки */
+.cell {
+  flex: 1;
+}
+
+.date-cell {
+  flex: 1.2;
+}
+
+.status-cell {
+  flex: 1.2;
+}
+
+/* Статусы */
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.status-new {
+  background-color: #cfe2ff; /* светло-синий фон */
+  color: #084298;
+}
+
+.status-shipped {
+  background-color: #d1e7dd; /* светло-зеленый фон */
+  color: #0f5132;
+}
+
+.status-canceled {
+  background-color: #212529; /* черный фон */
+  color: #fff;
+}
+
+.status-processing {
+  background-color: #ffd8a8; /* светло-оранжевый фон */
+  color: #974a01;
+}
