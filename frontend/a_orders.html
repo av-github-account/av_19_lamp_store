@@ -132,10 +132,19 @@
                     const tdStatus = document.createElement('div');
                     tdStatus.classList.add('cell');
                     const badge = document.createElement('span');
-                    badge.classList.add('badge');
+                    // Добавляем bg-secondary, чтобы фон бейджа был видимым
+                    badge.classList.add('badge', 'bg-secondary');
                     badge.textContent = order.status || '';
                     tdStatus.appendChild(badge);
                     row.appendChild(tdStatus);
+                    // // 2.5. Статус
+                    // const tdStatus = document.createElement('div');
+                    // tdStatus.classList.add('cell');
+                    // const badge = document.createElement('span');
+                    // badge.classList.add('badge');
+                    // badge.textContent = order.status || '';
+                    // tdStatus.appendChild(badge);
+                    // row.appendChild(tdStatus);
 
                     container.appendChild(row);
                 });
