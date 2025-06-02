@@ -43,9 +43,9 @@ async def proxy(service: str, path: str, request: Request):
     if service not in SERVICES:
         raise HTTPException(status_code=404, detail="Unknown service")
 
-    # Modified: strip the /api/v1 prefix when proxying to the admin service
+    # Вот здесь скорректировали путь для admin:
     if service == "admin":
-        target = f"{SERVICES[service]}/admin/{path}"
+        target = f"{SERVICES[service]}/api/v1/admin/{path}"
     else:
         target = f"{SERVICES[service]}/api/v1/{service}/{path}"
 
@@ -58,14 +58,9 @@ async def proxy(service: str, path: str, request: Request):
             content=await request.body(),
             timeout=10.0
         )
-  # Фильтруем upstream-заголовки date и server
     filtered = {k: v for k, v in resp.headers.items() if k.lower() not in ("date", "server")}
     return Response(content=resp.content, status_code=resp.status_code, headers=filtered)
-    # return Response(
-    #     content=resp.content,
-    #     status_code=resp.status_code,
-    #     headers=resp.headers
-    # )
+
 
 @app.get("/health")
 def health():

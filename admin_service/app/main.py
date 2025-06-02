@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
+from fastapi.staticfiles import StaticFiles
+
 from app.db.base import Base  
 from app.db.session import engine, get_db  
 from app.api.v1.admin_routes import router as admin_router
@@ -48,6 +50,8 @@ app.add_middleware(
     allow_methods=["*"],      # Разрешаем любые HTTP-методы
     allow_headers=["*"],      # Разрешаем любые заголовки
 )
+
+app.mount("/media", StaticFiles(directory="/media"), name="media")
 
 app.include_router(admin_router, prefix="/api/v1/admin", tags=["admin"])
 
