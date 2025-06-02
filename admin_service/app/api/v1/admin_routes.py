@@ -15,11 +15,6 @@ def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
 ):
-    """
-    POST /api/v1/admin/login
-    Принимает form-data: username, password.
-    Возвращает JWT (access_token, token_type).
-    """
     admin = authenticate_admin(db, form_data.username, form_data.password)
     if not admin:
         raise HTTPException(
@@ -27,8 +22,10 @@ def login_for_access_token(
             detail="Имя пользователя или пароль неверны",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    access_token = create_access_token(data={"sub": admin.username})
+    # Добавляем ключ "is_admin": True в payload
+    access_token = create_access_token(data={"sub": admin.username, "is_admin": True})
     return {"access_token": access_token, "token_type": "bearer"}
+
 
 @router.post("/register", response_model=AdminOut)
 def register_admin(

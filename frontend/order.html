@@ -137,7 +137,7 @@
             let products = [];
             try {
                 const resp = await axios.get('/api/v1/products/');
-                products = resp.data;
+                products = resp.data.filter(p => p.is_active);
             } catch (e) {
                 return alert('Не удалось загрузить список товаров');
             }

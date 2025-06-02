@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Карточка товара — Ламповый магазин</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Навигация -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <span class="navbar-brand d-flex align-items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24"
+                    class="me-2">
+                    <path
+                        d="M12 .75a8.25 8.25 0 0 0-4.135 15.39c.686.398 1.115 1.008 1.134 1.623a.75.75 0 0 0 .577.706c.352.083.71.148 1.074.195.323.041.6-.218.6-.544v-4.661a6.714 6.714 0 0 1-.937-.171.75.75 0 1 1 .374-1.453 5.261 5.261 0 0 0 2.626 0 .75.75 0 1 1 .374 1.452 6.712 6.712 0 0 1-.937.172v4.66c0 .327.277.586.6.545.364-.047.722-.112 1.074-.195a.75.75 0 0 0 .577-.706c.02-.615.448-1.225 1.134-1.623A8.25 8.25 0 0 0 12 .75Z" />
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                        d="M9.013 19.9a.75.75 0 0 1 .877-.597 11.319 11.319 0 0 0 4.22 0 .75.75 0 1 1 .28 1.473 12.819 12.819 0 0 1-4.78 0 .75.75 0 0 1-.597-.876ZM9.754 22.344a.75.75 0 0 1 .824-.668 13.682 13.682 0 0 0 2.844 0 .75.75 0 1 1 .156 1.492 15.156 15.156 0 0 1-3.156 0 .75.75 0 0 1-.668-.824Z" />
+                </svg>
+                <strong>Ламповый завод</strong>
+            </span>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="contacts.html">Контакты</a>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <a href="a_products.html" class="btn btn-outline-dark me-2">Товары</a>
+                    <a href="a_orders.html" class="btn btn-outline-dark me-2">Заказы</a>
+                    <a href="login.html" class="btn btn-outline-primary">Выход</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+
+
+    <!-- Основное содержимое -->
+    <div class="container my-5">
+        <h1 id="product-title">Карточка товара</h1>
+        <div class="row">
+            <div class="col-md-6 text-center">
+                <img id="product-image" src="" class="img-fluid rounded mb-3" alt="Изображение товара">
+                <button id="upload-photo-btn" class="btn btn-secondary">
+                    Загрузить фотографию
+                </button>
+            </div>
+            <div class="col-md-6">
+                <!-- Наименование -->
+                <div class="mb-4">
+                    <label for="product-name-input" class="form-label detail-label">Наименование:</label>
+                    <input type="text" id="product-name-input" class="form-control"
+                        placeholder="Введите название товара">
+                </div>
+
+                <!-- Цена -->
+                <div class="mb-4">
+                    <label for="product-price-input" class="form-label detail-label">Цена (₽):</label>
+                    <input type="number" step="0.01" id="product-price-input" class="form-control"
+                        placeholder="Введите цену">
+                </div>
+
+                <!-- Описание -->
+                <div class="mb-4">
+                    <label for="product-description-input" class="form-label detail-label">Описание:</label>
+                    <textarea id="product-description-input" class="form-control" rows="5"
+                        placeholder="Введите описание товара"></textarea>
+                </div>
+
+                <!-- Чекбокс "В продаже" -->
+                <div class="form-check mb-4">
+                    <input type="checkbox" class="form-check-input" id="product-active-checkbox">
+                    <label class="form-check-label" for="product-active-checkbox">В продаже</label>
+                </div>
+
+                <!-- Кнопка сохранения -->
+                <div class="d-flex align-items-center mb-4">
+                    <button id="save-product-btn" class="btn btn-warning btn-lg w-100">
+                        Сохранить изменения
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Футер -->
+    <footer class="footer bg-light text-center py-3 fixed-bottom">
+        2025 © Ламповый завод — фабрика по производству ламп различного назначения.
+    </footer>
+
+    <!-- Скрипты -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // 1. Считываем id из URL, например: a_product.html?id=5
+            const params = new URLSearchParams(window.location.search);
+            const productId = params.get('id');
+
+            if (!productId) {
+                alert('Не указан параметр id товара');
+                return;
+            }
+
+            try {
+                // 2. Запрашиваем товар по его id
+                const response = await axios.get(`/api/v1/products/${productId}`);
+                const prod = response.data; // { id, name, description, price, stock_quantity, image_url, is_active }
+
+                // 3. Заполняем элементы на странице
+                // Заголовок
+                document.getElementById('product-title').textContent = prod.name;
+
+                // Картинка
+                const imgEl = document.getElementById('product-image');
+                imgEl.src = prod.image_url;
+                imgEl.alt = prod.name;
+
+                // Наименование (input)
+                const nameInput = document.getElementById('product-name-input');
+                nameInput.value = prod.name;
+
+                // Цена (input)
+                const priceInput = document.getElementById('product-price-input');
+                priceInput.value = prod.price;
+
+                // Описание (textarea)
+                const descInput = document.getElementById('product-description-input');
+                descInput.value = prod.description;
+
+                // Чекбокс "В продаже"
+                const activeCheckbox = document.getElementById('product-active-checkbox');
+                activeCheckbox.checked = prod.is_active;
+
+                // (Если нужно, можно сразу сохранить в каком-то объекте оригинальные данные,
+                //  чтобы при отправке PUT-запроса передать вместе с изменениями поля stock_quantity и image_url)
+                // Например:
+                window._originalProduct = {
+                    stock_quantity: prod.stock_quantity,
+                    image_url: prod.image_url
+                };
+
+            } catch (error) {
+                console.error('Ошибка при загрузке данных товара:', error);
+                alert('Не удалось загрузить данные товара. Проверьте корректность id и соединение с сервером.');
+            }
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Получаем кнопку и элемент <img>
+            const uploadBtn = document.getElementById('upload-photo-btn');
+            const imgEl = document.getElementById('product-image');
+
+            // Считываем ID товара из URL: a_product.html?id=…
+            const params = new URLSearchParams(window.location.search);
+            const productId = params.get('id');
+            if (!productId) {
+                console.error('Не указан параметр id товара для загрузки фото');
+                return;
+            }
+
+            uploadBtn.addEventListener('click', () => {
+                // Создаём скрытый input[type=file]
+                const fileInput = document.createElement('input');
+                fileInput.type = 'file';
+                fileInput.accept = 'image/*';
+
+                fileInput.addEventListener('change', async () => {
+                    if (!fileInput.files || fileInput.files.length === 0) {
+                        return;
+                    }
+                    const file = fileInput.files[0];
+
+                    // Формируем FormData
+                    const formData = new FormData();
+                    formData.append('file', file);
+
+                    // Адрес загрузки – в admin_service должна быть ручка вида:
+                    // POST /api/v1/products/{id}/upload-image
+                    const uploadUrl = `/api/v1/products/${productId}/upload-image`;
+
+                    try {
+                        // Отправляем изображение на сервер
+                        const response = await axios.post(uploadUrl, formData, {
+                            headers: { 'Content-Type': 'multipart/form-data' }
+                        });
+                        // Предполагаем, что в ответе придёт JSON с полем image_url
+                        const newImageUrl = response.data.image_url;
+                        if (newImageUrl) {
+                            imgEl.src = newImageUrl;
+                            imgEl.alt = `Фото товара ${productId}`;
+                        } else {
+                            console.warn('В ответе не пришёл image_url');
+                        }
+                    } catch (err) {
+                        console.error('Ошибка при загрузке фото:', err);
+                        alert('Не удалось загрузить фотографию. Попробуйте ещё раз.');
+                    }
+                });
+
+                // Открываем диалог выбора файла
+                fileInput.click();
+            });
+        });
+    </script>
+
+</body>
+
+</html>

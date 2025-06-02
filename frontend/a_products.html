@@ -68,12 +68,14 @@
                     </li>
                 </ul>
                 <div class="d-flex">
-                    <a href="a_index.html" class="btn btn-outline-dark me-2">Главная</a>
+                    <a href="a_products.html" class="btn btn-outline-dark me-2">Товары</a>
+                    <a href="a_orders.html" class="btn btn-outline-dark me-2">Заказы</a>
                     <a href="login.html" class="btn btn-outline-primary">Выход</a>
                 </div>
             </div>
         </div>
     </nav>
+
 
     <!-- Основное содержимое: список товаров -->
     <div class="container my-5">
@@ -100,6 +102,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             try {
+                // Запрос всех товаров из API
                 const response = await axios.get('/api/v1/products');
                 let products = response.data; // массив объектов {id, name, price, is_active, …}
 
@@ -110,25 +113,32 @@
                 products.forEach(prod => {
                     const row = document.createElement('div');
                     row.classList.add('product-row');
+
+                    // В этой строке изменена логика формирования ссылки:
+                    // вместо a_product_<id>.html передаём id как GET-параметр в единый шаблон a_product.html
                     row.addEventListener('click', () => {
-                        window.location.href = `a_product_${prod.id}.html`;
+                        window.location.href = `a_product.html?id=${prod.id}`;
                     });
 
+                    // ID
                     const tdId = document.createElement('div');
                     tdId.classList.add('product-cell');
                     tdId.textContent = prod.id;
                     row.appendChild(tdId);
 
+                    // Название
                     const tdName = document.createElement('div');
                     tdName.classList.add('product-cell');
                     tdName.textContent = prod.name;
                     row.appendChild(tdName);
 
+                    // Цена
                     const tdPrice = document.createElement('div');
                     tdPrice.classList.add('product-cell');
                     tdPrice.textContent = prod.price;
                     row.appendChild(tdPrice);
 
+                    // В продаже
                     const tdActive = document.createElement('div');
                     tdActive.classList.add('product-cell');
                     tdActive.textContent = prod.is_active ? 'Да' : 'Нет';

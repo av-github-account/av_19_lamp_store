@@ -3,9 +3,10 @@ from app.models.product_model import Product
 from app.schemas.product_schema import ProductCreate, ProductUpdate
 
 
+# def get_all_products(db: Session):
+#     return db.query(Product).filter(Product.is_active).all()
 def get_all_products(db: Session):
-    return db.query(Product).filter(Product.is_active).all()
-
+    return db.query(Product).all()
 
 def get_product_by_id(db: Session, product_id: int):
     return db.query(Product).filter(Product.id == product_id).first()
