@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Карточка товара — Ламповый магазин</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Навигация -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <span class="navbar-brand d-flex align-items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24"
+                    class="me-2">
+                    <path
+                        d="M12 .75a8.25 8.25 0 0 0-4.135 15.39c.686.398 1.115 1.008 1.134 1.623a.75.75 0 0 0 .577.706c.352.083.71.148 1.074.195.323.041.6-.218.6-.544v-4.661a6.714 6.714 0 0 1-.937-.171.75.75 0 1 1 .374-1.453 5.261 5.261 0 0 0 2.626 0 .75.75 0 1 1 .374 1.452 6.712 6.712 0 0 1-.937.172v4.66c0 .327.277.586.6.545.364-.047.722-.112 1.074-.195a.75.75 0 0 0 .577-.706c.02-.615.448-1.225 1.134-1.623A8.25 8.25 0 0 0 12 .75Z" />
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                        d="M9.013 19.9a.75.75 0 0 1 .877-.597 11.319 11.319 0 0 0 4.22 0 .75.75 0 1 1 .28 1.473 12.819 12.819 0 0 1-4.78 0 .75.75 0 0 1-.597-.876ZM9.754 22.344a.75.75 0 0 1 .824-.668 13.682 13.682 0 0 0 2.844 0 .75.75 0 1 1 .156 1.492 15.156 15.156 0 0 1-3.156 0 .75.75 0 0 1-.668-.824Z" />
+                </svg>
+                <strong>Ламповый завод</strong>
+            </span>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="contacts.html">Контакты</a>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <a href="a_products.html" class="btn btn-outline-dark me-2">Товары</a>
+                    <a href="a_orders.html" class="btn btn-outline-dark me-2">Заказы</a>
+                    <a href="#" id="logout-link" class="btn btn-outline-primary">Выход</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Основное содержимое -->
+    <div class="container my-5">
+        <h1 id="product-title">Новый товар</h1>
+        <div class="row">
+            <div class="col-md-6 text-center">
+                <img id="product-image" src="" class="img-fluid rounded mb-3" alt="Изображение товара">
+                <button id="upload-photo-btn" class="btn btn-secondary">
+                    Загрузить фотографию
+                </button>
+            </div>
+            <div class="col-md-6">
+                <!-- Наименование -->
+                <div class="mb-4">
+                    <label for="product-name-input" class="form-label detail-label">Наименование:</label>
+                    <input type="text" id="product-name-input" class="form-control"
+                        placeholder="Введите название товара">
+                </div>
+
+                <!-- Цена -->
+                <div class="mb-4">
+                    <label for="product-price-input" class="form-label detail-label">Цена (₽):</label>
+                    <input type="number" step="0.01" id="product-price-input" class="form-control"
+                        placeholder="Введите цену">
+                </div>
+
+                <!-- Описание -->
+                <div class="mb-4">
+                    <label for="product-description-input" class="form-label detail-label">Описание:</label>
+                    <textarea id="product-description-input" class="form-control" rows="5"
+                        placeholder="Введите описание товара"></textarea>
+                </div>
+
+                <!-- Чекбокс "В продаже" -->
+                <div class="form-check mb-4">
+                    <input type="checkbox" class="form-check-input" id="product-active-checkbox" checked>
+                    <label class="form-check-label" for="product-active-checkbox">В продаже</label>
+                </div>
+
+                <!-- Кнопка сохранения -->
+                <div class="d-flex align-items-center mb-4">
+                    <button id="save-product-btn" class="btn btn-warning btn-lg w-100">
+                        Сохранить товар
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Футер -->
+    <footer class="footer bg-light text-center py-3 fixed-bottom">
+        2025 © Ламповый завод — фабрика по производству ламп различного назначения.
+    </footer>
+
+    <!-- Скрипты -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Будем хранить выбранный файл локально, до момента создания товара
+            window._newImageFile = null;
+
+            // Обработчик кнопки загрузки фото — только для предпросмотра
+            document.getElementById('upload-photo-btn').addEventListener('click', () => {
+                const fileInput = document.createElement('input');
+                fileInput.type = 'file';
+                fileInput.accept = 'image/*';
+
+                fileInput.addEventListener('change', () => {
+                    if (!fileInput.files || fileInput.files.length === 0) return;
+                    const file = fileInput.files[0];
+                    window._newImageFile = file;
+
+                    // Показываем локальный preview до сохранения
+                    const imgEl = document.getElementById('product-image');
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        imgEl.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                });
+
+                fileInput.click();
+            });
+
+            // Обработчик кнопки "Сохранить товар"
+            document.getElementById('save-product-btn').addEventListener('click', async () => {
+                // 1) Считываем поля формы
+                const name = document.getElementById('product-name-input').value.trim();
+                const priceStr = document.getElementById('product-price-input').value;
+                const description = document.getElementById('product-description-input').value.trim();
+                const isActive = document.getElementById('product-active-checkbox').checked;
+
+                // 2) Простая валидация
+                if (!name) {
+                    alert('Введите наименование товара');
+                    return;
+                }
+                const price = parseFloat(priceStr);
+                if (isNaN(price) || price < 0) {
+                    alert('Введите корректную цену');
+                    return;
+                }
+
+                // 3) Формируем базовый payload для создания (ProductCreate)
+                const payload = {
+                    name: name,
+                    description: description,
+                    price: price,
+                    stock_quantity: 0,      // новый товар стартует с 0 на складе
+                    image_url: "",          // пока пусто, заполним после загрузки, если файл выбран
+                    is_active: isActive
+                };
+
+                try {
+                    // 4) FIRST: создаём товар без картинки
+                    const createResp = await axios.post(
+                        '/api/v1/products/',
+                        payload,
+                        {
+                            headers: { 'Content-Type': 'application/json' }
+                        }
+                    );
+                    const created = createResp.data; // получим объект с id и всеми полями
+
+                    // 5) Если файл был выбран, загружаем картинку через admin_service
+                    if (window._newImageFile) {
+                        const formData = new FormData();
+                        formData.append('file', window._newImageFile);
+                        formData.append('product_id', created.id);
+
+                        const uploadResp = await axios.post(
+                            '/api/v1/admin/upload-image',
+                            formData,
+                            {
+                                headers: { 'Content-Type': 'multipart/form-data' },
+                                withCredentials: true
+                            }
+                        );
+
+                        // После загрузки сервера вернуло image_url
+                        const newImageUrl = uploadResp.data.image_url;
+                        // Чтобы отразить в product_service, админ-ручка внутри себя уже обновила product_service.
+                        // Мы просто обновим локальный preview.
+                        document.getElementById('product-image').src = newImageUrl;
+                    }
+
+                    // 6) После успешного создания (и загрузки картинки) редиректим на страницу редактирования товара
+                    window.location.href = `/a_product.html?id=${created.id}`;
+                } catch (err) {
+                    console.error('Ошибка при создании товара:', err);
+                    if (err.response && err.response.data && err.response.data.detail) {
+                        alert(`Не удалось создать товар: ${err.response.data.detail}`);
+                    } else {
+                        alert('Ошибка при создании товара. Проверьте соединение с сервером.');
+                    }
+                }
+            });
+
+            // Обработчик выхода
+            document.getElementById('logout-link').addEventListener('click', function (e) {
+                e.preventDefault();
+                localStorage.removeItem('access_token');
+                document.cookie = 'Authorization=; Max-Age=0; path=/; SameSite=Strict';
+                window.location.href = 'index.html';
+            });
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

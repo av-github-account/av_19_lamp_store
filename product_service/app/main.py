@@ -2,8 +2,13 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1.product_routes import router as product_router
+from app.db.session import engine
+from app.db.base import Base
 
 app = FastAPI()
+
+# Создаём таблицы в базе, если их ещё нет
+Base.metadata.create_all(bind=engine)
 
 # Разрешаем запросы с фронтенда через API Gateway
 app.add_middleware(
@@ -23,6 +28,11 @@ app.include_router(
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
+
+@app.get("/")
+def root():
+    return {"message": "Product service root"}
+
 
 # from fastapi import FastAPI
 # from contextlib import asynccontextmanager
